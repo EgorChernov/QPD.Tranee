@@ -10,7 +10,7 @@ namespace Task18
     {
         public static void Main(string[] args)
         {
-            var file = File.ReadAllText(@"in.txt");
+            var file = File.ReadAllText("in.txt");
 
             var array = file.Trim()
                 .Split(' ')
