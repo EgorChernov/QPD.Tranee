@@ -1,4 +1,5 @@
 ﻿using System;
+using Utils;
 
 namespace Task16
 {
@@ -11,37 +12,31 @@ namespace Task16
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            var isParseSuccess = false;
             int length;
-            Console.Write("Введите длину массива : ");
             do
             {
-                var readConsole = Console.ReadLine();
-                isParseSuccess = int.TryParse(readConsole, out length);
-                if (isParseSuccess)
-                    isParseSuccess = length > 0;
+                length = Util.GetNumberFromConsole();
+            } while (length < 0);
+
+            var a = Util.GetSortRandomArray(length);
+            Util.WriteLineArray(a);
             
-                if (!isParseSuccess)
-                    Console.Write("Введите длину массива : ");
-            } while (!isParseSuccess);
+            var b = Util.GetSortRandomArray(length);
+            Util.WriteLineArray(b);
             
-            var a =GetRandomArray(length);
-            var b = GetRandomArray(length);
             var c = Solve(a, b);
-            foreach (var value in c) Console.Write(value + " ");
-            Console.WriteLine();
+            Util.WriteLineArray(c);
         }
 
         private static int[] Solve(int[] a, int[] b)
         {
-            if (a == null) throw new ArgumentNullException(nameof(a));
-            if (b == null) throw new ArgumentNullException(nameof(b));
             var c = new int[a.Length + b.Length];
 
             var aIndex = 0;
             var bIndex = 0;
             var cIndex = 0;
 
+            //FIXME:
             while (!(c.Length == cIndex && b.Length == bIndex && a.Length == aIndex))
             {
                 if (a.Length == aIndex)

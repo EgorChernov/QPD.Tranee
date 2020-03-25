@@ -1,4 +1,5 @@
 ﻿using System;
+using Utils;
 
 namespace Task15
 {
@@ -15,33 +16,27 @@ namespace Task15
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            var isParseSuccess = false;
             int length;
-            Console.Write("Введите длину массива : ");
             do
             {
-                var readConsole = Console.ReadLine();
-                isParseSuccess = int.TryParse(readConsole, out length);
-                if (isParseSuccess)
-                    isParseSuccess = length > 0;
-            
-                if (!isParseSuccess)
-                    Console.Write("Введите длину массива : ");
-            } while (!isParseSuccess);
+                length = Util.GetNumberFromConsole();
+            } while (length < 0);
 
-            var array = GetRandomArray(length);
+            var array = Util.GetRandomArray(length);
+            Util.WriteLineArray(array);
+            
             Solve(array);
         }
 
         private static void Solve(int[] array)
         {
-            if (array.Length == 0) throw new ArgumentException("Value cannot be an empty collection.", nameof(array));
-            
             var maxIndex = 0;
             var minIndex = 0;
+            
+            //FIXME: Заменить на linq
             var minEvenIndex = array[0] % 2 == 0 ? 0 : int.MinValue;
             var minOddIndex = array[0] % 2 == 0 ? int.MinValue : 0;
-            
+
             for (var i = 1; i < array.Length; i++)
             {
                 if (array[i] > array[maxIndex]) maxIndex = i;
@@ -55,35 +50,21 @@ namespace Task15
 
             Console.WriteLine("минимальный элемент = {0}", array[minIndex]);
             Console.WriteLine("максимальный элемент = {0}", array[maxIndex]);
-            
+
             if (minEvenIndex == int.MinValue)
                 Console.WriteLine("В массиве нет четных элементов");
-            else 
+            else
                 Console.WriteLine("минимальное четное = {0}", array[minEvenIndex]);
             if (minEvenIndex == int.MinValue)
                 Console.WriteLine("В массиве нет нечетных элементов");
-            else 
+            else
                 Console.WriteLine("минимальное нечетное = {0}", array[minOddIndex]);
 
             var temp = array[maxIndex];
             array[maxIndex] = array[minIndex];
             array[minIndex] = temp;
-            foreach (var value in array) Console.Write(value + " ");
-            Console.WriteLine();
-        }
-        
-        private static int[] GetRandomArray(int length)
-        {
-            if (length < 1) throw new ArgumentOutOfRangeException(nameof(length));
-            var array = new int[length];
-            var random = new Random();
-            for (var i = 0; i < array.Length; i++) array[i] = random.Next(100);
-            // array[0] = random.Next(10);
-            // for (var i = 1; i < array.Length; i++)
-            //     array[i] = array[i - 1] + random.Next(6);
-            foreach (var value in array) Console.Write(value + " ");
-            Console.WriteLine();
-            return array;
+
+            Util.WriteLineArray(array);
         }
     }
 }

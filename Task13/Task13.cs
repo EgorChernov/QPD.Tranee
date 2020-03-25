@@ -1,4 +1,5 @@
 ﻿using System;
+using Utils;
 
 namespace Task13
 {
@@ -12,29 +13,25 @@ namespace Task13
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            Solve(5, out var digit, out var count);
+            int length;
+            do
+            {
+                length = Util.GetNumberFromConsole();
+            } while (length < 0);
+                 
+            var array = Util.GetRandomArray(length);
+            Util.WriteLineArray(array);
+            
+            
+            Solve(array, out var digit, out var count);
             Console.WriteLine("digit = {0}, count = {1}", digit, count);
         }
 
-        private static void Solve(int length, out int digit, out int count)
+        private static void Solve(int[] array, out int digit, out int count)
         {
-            if (length < 1)
-                throw new ArgumentException(nameof(length));
-
-            var array = new int[length];
-            var random = new Random();
-            for (var i = 0; i < array.Length; i++)
-                array[i] = random.Next(100);
-
-            foreach (var value in array) Console.Write(value + " ");
-            Console.WriteLine();
-
+         //Массив распределения цифр в числах элементов массива
             var distribution = GetDistributionArray(array);
-
-            foreach (var value in distribution) Console.Write(value + " ");
-            Console.WriteLine();
-
-
+        
             digit = 0;
             count = distribution[0];
 
@@ -56,7 +53,8 @@ namespace Task13
             var distribution = new int[10];
             foreach (var number in array)
             {
-                var temp = number;
+                var temp = number < 0 ? -number : number;
+                
                 while (temp > 0)
                 {
                     distribution[temp % 10]++;

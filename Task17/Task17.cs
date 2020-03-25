@@ -12,14 +12,17 @@ namespace Task17
         public static void Main(string[] args)
         {
             var file = File.ReadAllText("in.txt");
-
+            if (string.IsNullOrEmpty(file)) return;
+            
             var array = file.Trim()
                 .Split(' ')
                 .Select(value => int.Parse(value))
                 .OrderBy(value => value)
+                .Select(value => value.ToString())
                 .ToArray();
-
-            File.WriteAllText("out.txt", string.Join(" ", array.Select(value => value.ToString())));
+            var some = string.Join(" ", array);
+            
+            File.WriteAllText("out.txt", some);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Utils;
 
 namespace Task3
 {
@@ -10,62 +11,41 @@ namespace Task3
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            int n;
-            var isParseSuccess = false;
-
-            Console.Write("n = : ");
+            int number;
+ 
             do
             {
-                var readConsole = Console.ReadLine();
-                isParseSuccess = int.TryParse(readConsole, out n);
-                if (isParseSuccess)
-                    isParseSuccess = n > 3;
+                number = Util.GetNumberFromConsole();
+            } while (number <= 0);
 
-                if (!isParseSuccess)
-                    Console.Write("n = : ");
-            } while (!isParseSuccess);
-
-            Console.WriteLine($"Сумма трех первых нечетных  =  {Solver(n)}");
+            var result = GetSumThreeFirstOdd(number);
+            Console.WriteLine(result != -1
+                ? $"Сумма трех первых нечетных  =  {result}"
+                : "В введенной последовательности нет трех нечетных");
         }
 
-        private static int Solver(int length)
+        private static int GetSumThreeFirstOdd(int length)
         {
-            if (length <= 0) throw new ArgumentOutOfRangeException(nameof(length));
-
-            //Только для получения данных
-            var array = GetRandomArray(length);
-            var firstValue = int.MinValue;
-            var secondValue = int.MinValue;
-            var thirdValue = int.MinValue;
-
-            foreach (var value in array)
-            {
-                if (value % 2 == 0) continue;
-
-                if (firstValue == int.MinValue)
-                    firstValue = value;
-                else if (secondValue == int.MinValue)
-                    secondValue = value;
-                else if (thirdValue == int.MinValue)
-                    thirdValue = value;
-                else
-                    return firstValue + secondValue + thirdValue;
-            }
+            var sum = 0;
+            var count = 0;
             
-            Console.WriteLine("В введенной последовательнасти нет трех нечетных");
-            return -1;
-        }
+            for (var i = 0; i < length; i++)
+            {
+                //3 odd numbers were entered already
+                //So waiting until user entered all numbers
+                if (count == 3)
+                    continue;
 
+                var nextNumber = Util.GetNumberFromConsole();
+                
+                //If number is even - do nothing
+                if (nextNumber % 2 == 0) continue;
 
-        private static int[] GetRandomArray(int length)
-        {
-            if (length < 1) throw new ArgumentOutOfRangeException(nameof(length));
-            var array = new int[length];
-            var random = new Random();
-            for (var i = 0; i < array.Length; i++) array[i] = random.Next(100);
-            foreach (var value in array) Console.Write(value + " ");
-            Console.WriteLine();
-            return array;
+                sum += nextNumber;
+                count++;
+            }
+
+            return count == 3 ? sum : -1;
         }
 
     }

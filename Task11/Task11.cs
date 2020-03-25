@@ -12,19 +12,15 @@ namespace Task11
         {
             var count = 1;
             var sum = 6;
-            
-            while (true)
-                if (sum + 4 <= 100)
-                {
-                    count++;
-                    sum += 4;
-                }
-                else
-                    break;
 
-            Console.WriteLine($"Сумма = {sum}");
-            Console.WriteLine($"Количество слагаемых = {count}");
+            while (sum <= 100 - 4)
+            {
+                count++;
+                sum += 4;
+            }
+
+            Console.WriteLine($"Сумма = {sum}\nКоличество слагаемых = {count}");
         }
-        
+
     }
 }

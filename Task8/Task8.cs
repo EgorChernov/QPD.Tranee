@@ -11,10 +11,11 @@ namespace Task8
         public static void Main(string[] args)
         {
             var sum = 6;
-            //На 10 слагаемых 9 сложений
             for (var i = 1; i < 10; i++)
+            {
                 sum += 4;
-            
+            }
+
             Console.WriteLine($"Сумма 10 слагаемых = {sum}");
         }
     }

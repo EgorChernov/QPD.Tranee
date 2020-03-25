@@ -1,4 +1,5 @@
 ﻿using System;
+using Utils;
 
 namespace Task5
 {
@@ -6,34 +7,17 @@ namespace Task5
     {
         public static void Main(string[] args)
         {
-            var isParseSuccess = false;
-            int n;
-            Console.Write("n = ");
-            do
-            {
-                var readConsole = Console.ReadLine();
-                isParseSuccess = int.TryParse(readConsole, out n);
-                if (isParseSuccess)
-                    isParseSuccess = n > 0;
-
-                if (!isParseSuccess)
-                    Console.Write("n = ");
-            } while (!isParseSuccess);
-
-
-            isParseSuccess = false;
             int m;
-            Console.Write("m = ");
             do
             {
-                var readConsole = Console.ReadLine();
-                isParseSuccess = int.TryParse(readConsole, out m);
-                if (isParseSuccess)
-                    isParseSuccess = m > 0;
-
-                if (!isParseSuccess)
-                    Console.Write("m = ");
-            } while (!isParseSuccess);
+                m = Util.GetNumberFromConsole();
+            } while (m <= 0);
+           
+            int n;
+            do
+            {
+                n = Util.GetNumberFromConsole();
+            } while (n <= 0);
 
             RenderA(m, m);
             RenderB(m);
@@ -74,10 +58,10 @@ namespace Task5
         ///     *****
         /// </summary>
         /// <param name="m"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         private static void RenderB(int m)
         {
-            if (m <= 0) throw new ArgumentOutOfRangeException(nameof(m));
+            if (m <= 0) throw new ArgumentException(nameof(m));
 
             for (var i = 0; i < m; i++)
             {
@@ -91,7 +75,7 @@ namespace Task5
 
         private static void RenderC(int m)
         {
-            if (m <= 0) throw new ArgumentOutOfRangeException(nameof(m));
+            if (m <= 0) throw new ArgumentException(nameof(m));
 
             for (var i = 0; i < m; i++)
             {
@@ -107,7 +91,7 @@ namespace Task5
 
         private static void RenderD(int m)
         {
-            if (m <= 0) throw new ArgumentOutOfRangeException(nameof(m));
+            if (m <= 0) throw new ArgumentException(nameof(m));
 
             for (var i = 0; i < m; i++)
             {
@@ -128,10 +112,10 @@ namespace Task5
         ///     *
         /// </summary>
         /// <param name="m"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         private static void RenderE(int m)
         {
-            if (m <= 0) throw new ArgumentOutOfRangeException(nameof(m));
+            if (m <= 0) throw new ArgumentException(nameof(m));
 
             for (var i = 0; i < m; i++)
             {
