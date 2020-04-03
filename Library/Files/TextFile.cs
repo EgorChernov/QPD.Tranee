@@ -17,7 +17,7 @@ namespace Library.Files
         /// </summary>
         /// <param name="commandValueDictionary">словарь значений параметра</param>
         /// <returns>Ошибка сопоставления параментра</returns>
-        public virtual string FillFields(Dictionary<string, string> commandValueDictionary)
+        public virtual void FillFields(Dictionary<string, string> commandValueDictionary, out string result)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append(FillNameField(commandValueDictionary));
@@ -27,20 +27,20 @@ namespace Library.Files
             stringBuilder.Append(FillPublishedField(commandValueDictionary));
             stringBuilder.Append(FillYearField(commandValueDictionary));
 
-            return stringBuilder.ToString();
+            result = stringBuilder.ToString();
         }
 
-        public virtual string EditFields(Dictionary<string, string> commandValueDictionary)
+        public virtual void EditFields(Dictionary<string, string> commandValueDictionary, out string result)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append(EditNameField(commandValueDictionary));
-            
+
             stringBuilder.Append(FillCodeField(commandValueDictionary));
             stringBuilder.Append(FillCountField(commandValueDictionary));
             stringBuilder.Append(FillPublishedField(commandValueDictionary));
             stringBuilder.Append(FillYearField(commandValueDictionary));
 
-            return stringBuilder.ToString();
+            result = stringBuilder.ToString();
         }
 
 
@@ -62,13 +62,12 @@ namespace Library.Files
                 this.Name = Name;
             return string.Empty;
         }
-
-
+        
         protected string FillCodeField(IReadOnlyDictionary<string, string> commandValueDictionary)
         {
             if (!commandValueDictionary.ContainsKey("code")) return string.Empty;
             
-            var isParse = int.TryParse(commandValueDictionary["code"], out int value);
+            var isParse = int.TryParse(commandValueDictionary["code"], out var value);
             if (isParse && value > 0)
             {
                 this.Code = value;

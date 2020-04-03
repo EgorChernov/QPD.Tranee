@@ -9,26 +9,26 @@ namespace Library.Files
         public string Period { get; set; }
         public int Number { get; set; }
 
-        public override string FillFields(Dictionary<string, string> commandValueDictionary)
+        public override void FillFields(Dictionary<string, string> commandValueDictionary, out string result)
         {
-            var result = base.FillFields(commandValueDictionary);
+            base.FillFields(commandValueDictionary, out result);
             var stringBuilder = new StringBuilder(result);
 
             stringBuilder.Append(FillNumberField(commandValueDictionary));
             stringBuilder.Append(FillPeriodField(commandValueDictionary));
 
-            return stringBuilder.ToString();
+            result = stringBuilder.ToString();
         }
 
-        public override string EditFields(Dictionary<string, string> commandValueDictionary)
+        public override void EditFields(Dictionary<string, string> commandValueDictionary, out string result)
         {
-            var result = base.FillFields(commandValueDictionary);
+            base.EditFields(commandValueDictionary, out result);
             var stringBuilder = new StringBuilder(result);
 
             stringBuilder.Append(FillNumberField(commandValueDictionary));
             stringBuilder.Append(FillPeriodField(commandValueDictionary));
 
-            return stringBuilder.ToString();
+            result = stringBuilder.ToString();
         }
 
         #region Validation
@@ -36,17 +36,14 @@ namespace Library.Files
         private string FillNumberField(IReadOnlyDictionary<string, string> commandValueDictionary)
         {
             if (!commandValueDictionary.ContainsKey("number")) return string.Empty;
-            
-            bool isParse = int.TryParse(commandValueDictionary["number"], out int value);
-            if (isParse && value > 0)
-            {
-                this.Number = value;
-                return string.Empty;
-            }
-            else
+
+            if (!(int.TryParse(commandValueDictionary["number"], out var value) && value > 0))
             {
                 return "Не удалось получить значение поля \"Номер\" - положительное число\n";
             }
+
+            Number = value;
+            return string.Empty;
         }
 
         private string FillPeriodField(IReadOnlyDictionary<string, string> commandValueDictionary)

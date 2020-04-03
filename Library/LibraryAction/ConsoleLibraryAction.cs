@@ -5,68 +5,83 @@ using Library.Files;
 
 namespace Library
 {
-    public class ConsoleLibraryAction : LibraryAction
+    public class ConsoleLibraryAction : IAction<TextFile>
     {
+        public List<TextFile> FilesList { get; set; }
         public ConsoleLibraryAction()
         {
-            this.library = new List<TextFile>();
+            this.FilesList = new List<TextFile>();
         }
 
-        public override bool CreateItem(string parameter)
+        public void CreateItem(string parameter, out bool success)
         {
-            if (string.IsNullOrEmpty(parameter)) return false;
+            if (string.IsNullOrEmpty(parameter)){success = false; return;}
 
             CommandParametersSplit(parameter, out var textFileType, out var parameters);
 
             var parametersDictionary = SplitCommand(parameters);
-            if (parameters == null)
-                return false;
+            if (parametersDictionary == null)
+            {
+                success = false;
+                return;
+            }
 
             switch (textFileType.ToLower())
             {
                 case "-b":
                 {
                     var book = new Book();
-                    var fillFieldsWarning = book.FillFields(parametersDictionary);
+                    book.FillFields(parametersDictionary, out var fillFieldsWarning);
 
                     if (string.IsNullOrEmpty(fillFieldsWarning))
                     {
-                        library.Add(book);
+                        FilesList.Add(book);
                         Console.WriteLine("Книга добавлена");
-                        return true;
+                        success = true;
+                        return;
                     }
 
                     Console.WriteLine(fillFieldsWarning);
-                    return false;
+                    success = false;
+                    break;
                 }
                 case "-m":
                 {
                     var magazine = new Magazine();
-                    var fillFieldsWarning = magazine.FillFields(parametersDictionary);
+                    magazine.FillFields(parametersDictionary, out var fillFieldsWarning);
                     if (string.IsNullOrEmpty(fillFieldsWarning))
                     {
-                        library.Add(magazine);
+                        FilesList.Add(magazine);
                         Console.WriteLine("Журнал добавлен");
-                        return true;
+                        success = true;
+                        return;
                     }
 
                     Console.WriteLine(fillFieldsWarning);
-                    return false;
-
+                    success = false;
+                    break;
                 }
                 default:
                 {
-                    return false;
+                    success = false;
+                    break;
                 }
             }
         }
 
-        public override bool EditItem(string name)
+        public void EditItem(string name, out bool success)
         {
-            if (string.IsNullOrEmpty(name)) return false;
-            if (library.Count == 0)
+            if (string.IsNullOrEmpty(name))
+            {
+                success = false;
+                return;
+            }
+
+            if (FilesList.Count == 0)
             {
                 Console.WriteLine("Фонд пуст");
+                success = true;
+                return;
             }
 
             var searchByName = GetListItemByName(name);
@@ -77,7 +92,8 @@ namespace Library
                 case 0:
                 {
                     Console.WriteLine("Позиций с таким названием в фонде нет");
-                    return true;
+                    success = true;
+                    return;
                 }
                 case 1:
                 {
@@ -88,61 +104,66 @@ namespace Library
                 {
                     Console.WriteLine($"Найдено файлов : {searchByName.Count}");
 
-                    foreach (var file in searchByName)
-                    {
-                        Console.WriteLine(file);
-                    }
+                    foreach (var file in searchByName) Console.WriteLine(file);
 
                     Console.WriteLine($"Какой из файлов удалить? 1 - {searchByName.Count}");
 
-                    if (int.TryParse(Console.ReadLine(), out var value) && value > 0 && value <= searchByName.Count)
+                    if (!(int.TryParse(Console.ReadLine(), out var value) && value > 0 && value <= searchByName.Count))
                     {
-                        oldItem = searchByName.ElementAt(value - 1);
-                        break;
+                        success = false;
+                        return;
                     }
-                    else
-                    {
-                        return false;
-                    }
+
+                    oldItem = searchByName.ElementAt(value - 1);
+                    break;
                 }
             }
 
             Console.WriteLine("Введите изменения в формате -field1 newValue1 -field2 newValue2");
             var newValueDictionary = SplitCommand(Console.ReadLine());
-            if (newValueDictionary == null) return false;
+            if (newValueDictionary == null)
+            {
+                success = false;
+                return;
+            }
 
             var newItem = oldItem.Clone() as TextFile;
-            if (newItem == null) return false;
-            var warningMessage = newItem.FillFields(newValueDictionary);
+
+            if (newItem == null)
+            {
+                success = false;
+                return;
+            }
+
+            newItem.EditFields(newValueDictionary, out var warningMessage);
 
             if (!string.IsNullOrEmpty(warningMessage))
             {
                 Console.WriteLine(warningMessage);
-                return false;
+                success = false;
             }
             else
             {
-                var result = library.Remove(oldItem);
-                if (result)
-                {
-                    library.Add(newItem);
-                    Console.WriteLine("Изменения сохранены");
-                }
-                else
-                {
-                    return result;
-                }
+                success = FilesList.Remove(oldItem);
+                if (!success) return;
+                FilesList.Add(newItem);
+                Console.WriteLine("Изменения сохранены");
             }
-
-            return true;
         }
 
-        public override bool DeleteItem(string name)
+        public void DeleteItem(string name, out bool success)
         {
-            if (string.IsNullOrEmpty(name)) return false;
-            if (library.Count == 0)
+            if (string.IsNullOrEmpty(name))
+            {
+                success = false;
+                return;
+            }
+
+            if (FilesList.Count == 0)
             {
                 Console.WriteLine("Фонд пуст");
+                success = true;
+                return;
             }
 
             var searchByName = GetListItemByName(name);
@@ -150,13 +171,17 @@ namespace Library
             switch (searchByName.Count)
             {
                 case 0:
+                {
                     Console.WriteLine("Позиций с таким названием в фонде нет");
-                    return true;
+                    success = true;
+                    return;
+                }
                 case 1:
                 {
-                    var result = library.Remove(searchByName.ElementAt(0));
+                    var result = FilesList.Remove(searchByName.ElementAt(0));
                     Console.WriteLine(result ? "Файл успешно удален" : "Ошибка удаления файла");
-                    return result;
+                    success = result;
+                    return;
                 }
             }
 
@@ -169,25 +194,26 @@ namespace Library
 
             Console.WriteLine($"Какой из файлов удалить? 1 - {searchByName.Count}");
 
-            if (int.TryParse(Console.ReadLine(), out var value) && value > 0 && value <= searchByName.Count)
+
+            if (!(int.TryParse(Console.ReadLine(), out var value) && value > 0 && value <= searchByName.Count))
             {
-                var result = library.Remove(searchByName.ElementAt(value - 1));
-                Console.WriteLine(result ? "Файл успешно удален" : "Ошибка удаления файла");
-                return result;
+                success = false;
+                return;
             }
-            else
-            {
-                return false;
-            }
+
+            success = FilesList.Remove(searchByName.ElementAt(value - 1));
+            Console.WriteLine(success ? "Файл успешно удален" : "Ошибка удаления файла");
         }
 
-        public override bool SearchItem(string name)
+        public void SearchItem(string name, out bool success)
         {
-            if (string.IsNullOrEmpty(name)) return false;
-            if (library.Count == 0)
+            if (string.IsNullOrEmpty(name)){ success = false; return;}
+
+            if (FilesList.Count == 0)
             {
                 Console.WriteLine("Фонд пуст");
-                return true;
+                success = true;
+                return;
             }
 
             var searchByName = GetListItemByName(name);
@@ -195,7 +221,8 @@ namespace Library
             if (searchByName.Count == 0)
             {
                 Console.WriteLine("Позиций с таким названием в фонде нет");
-                return true;
+                success = true;
+                return;
             }
 
             foreach (var item in searchByName)
@@ -203,7 +230,7 @@ namespace Library
                 Console.WriteLine(item);
             }
 
-            return true;
+            success = true;
         }
 
 
@@ -234,24 +261,24 @@ namespace Library
 
                     case "-add":
                     {
-                        isCommandSuccess = CreateItem(parameters);
+                        CreateItem(parameters, out isCommandSuccess);
                         break;
                     }
                     case "-search":
                     {
-                        isCommandSuccess = SearchItem(parameters);
+                        SearchItem(parameters, out isCommandSuccess);
                         break;
                     }
 
                     case "-edit":
                     {
-                        isCommandSuccess = EditItem(parameters);
+                        EditItem(parameters, out isCommandSuccess);
                         break;
                     }
 
                     case "-delete":
                     {
-                        isCommandSuccess = DeleteItem(parameters);
+                        DeleteItem(parameters, out isCommandSuccess);
                         break;
                     }
 
@@ -270,13 +297,13 @@ namespace Library
 
         private bool WriteConsoleAllItem()
         {
-            if (library.Count == 0)
+            if (FilesList.Count == 0)
             {
                 Console.WriteLine("Фонд пуст");
                 return true;
             }
 
-            foreach (var item in library)
+            foreach (var item in FilesList)
             {
                 Console.WriteLine(item);
             }
@@ -296,7 +323,7 @@ namespace Library
             return true;
         }
 
-        private List<TextFile> GetListItemByName(string name) => library
+        private List<TextFile> GetListItemByName(string name) => FilesList
             .Where(file => file.Name.Contains(name, StringComparison.CurrentCultureIgnoreCase)).ToList();
 
         /// <summary>
@@ -329,46 +356,39 @@ namespace Library
             var commandDictionary = new Dictionary<string, string>();
             foreach (var value in splitCommand.Select(x => x.Trim()))
             {
+                if (string.IsNullOrEmpty(value)) return null;
                 if (!value.Contains("\""))
                 {
                     //there is -command value
                     //should be just one space
                     var splitAction = value.Split(' ');
 
-                    if (splitAction.Length == 2)
-                    {
-                        commandDictionary.Add(splitAction[0].ToLower(), splitAction[1]);
-                    }
-                    else
-                    {
-                        //incorrect input
-                        //-command value with spaces
-                        return null;
-                    }
+                    //incorrect input
+                    //-command value with spaces
+                    if (splitAction.Length != 2) return null;
+                    commandDictionary.Add(splitAction[0].ToLower(), splitAction[1]);
                 }
                 else
                 {
                     //there is -command "value with spaces"
 
-                    if (value.Count(c => c.Equals('"')) == 2)
-                    {
-                        //Check if there no -com"mand value with spaces"
-                        if (value.Substring(0, value.IndexOf(' ')).Contains("\""))
-                            return null;
+                    if (value.Count(c => c.Equals('"')) != 2) return null;
 
-                        var dictionaryKey = value.Substring(0, value.IndexOf(' '));
-                        var dictionaryValue = value.Substring(value.IndexOf("\"", StringComparison.Ordinal),
-                            value.LastIndexOf("\"", StringComparison.Ordinal) -
-                            value.IndexOf("\"", StringComparison.Ordinal) + 1);
-
-                        commandDictionary.Add(dictionaryKey.ToLower(), dictionaryValue);
-                    }
-                    else
+                    //Check if there no -com"mand value with spaces"
+                    if (value.Substring(0, value.IndexOf(' ')).Contains("\""))
                         return null;
+
+                    var dictionaryKey = value.Substring(0, value.IndexOf(' '));
+                    var dictionaryValue = value.Substring(value.IndexOf("\"", StringComparison.Ordinal),
+                        value.LastIndexOf("\"", StringComparison.Ordinal) -
+                        value.IndexOf("\"", StringComparison.Ordinal) + 1);
+
+                    commandDictionary.Add(dictionaryKey.ToLower(), dictionaryValue);
                 }
             }
 
             return commandDictionary;
         }
+
     }
 }

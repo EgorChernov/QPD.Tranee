@@ -8,24 +8,24 @@ namespace Library.Files
         public string Author { get; set; }
         public string Genre { get; set; }
 
-        public override string FillFields(Dictionary<string, string> commandValueDictionary)
+        public override void FillFields(Dictionary<string, string> commandValueDictionary, out string result)
         {
-            var result = base.FillFields(commandValueDictionary);
+            base.FillFields(commandValueDictionary, out result);
             var stringBuilder = new StringBuilder(result);
 
             stringBuilder.Append(FillAuthorField(commandValueDictionary));
             stringBuilder.Append(FillGenreField(commandValueDictionary));
-            return stringBuilder.ToString();
+            result = stringBuilder.ToString();
         }
 
-        public override string EditFields(Dictionary<string, string> commandValueDictionary)
+        public override void EditFields(Dictionary<string, string> commandValueDictionary, out string result)
         {
-            var result = base.FillFields(commandValueDictionary);
+            base.EditFields(commandValueDictionary, out result);
             var stringBuilder = new StringBuilder(result);
 
             stringBuilder.Append(FillAuthorField(commandValueDictionary));
             stringBuilder.Append(FillGenreField(commandValueDictionary));
-            return stringBuilder.ToString();
+            result = stringBuilder.ToString();
         }
 
         private string FillAuthorField(IReadOnlyDictionary<string, string> commandValueDictionary)
